@@ -1,0 +1,16 @@
+.label {
+	display: block;
+	clear: left;
+	float: left;
+	width: 175px;
+	text-align: right;
+	/*padding: 7px 15px 0 0;*/
+	text-transform: uppercase;	
+	font-weight: bold;
+}
+
+html, body, #map-canvas {
+	height: 100%; 
+	margin: 0; 
+	padding: 0;
+}
