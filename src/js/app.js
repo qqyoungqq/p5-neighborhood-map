@@ -1,3 +1,4 @@
+// To do: better binding 
 /* Model */
 var initialNeighborhood = 'Miami, FL';
 var config = {
