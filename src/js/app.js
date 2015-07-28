@@ -11,16 +11,20 @@ var ViewModel = function() {
     var self=this;
     var map;
     var service;
+    var mapCanvas =  document.getElementById('map-canvas');
+
 
     this.neighborhood = ko.observable(initialNeighborhood); // pre-defined neighborhood
-    this.initialList = ko.observableArray([]);              // pre-defined placed 
+    this.initialList = ko.observableArray();              // pre-defined placed 
+    //self.filteredList = ko.computed();
 
     function initialMap() {
         var mapOptions = {
             zoom: 14,
             disableDefaultUI: true
         };
-        map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+        //var mapCanvas = document.getElementById('map-canvas');
+        map = new google.maps.Map(mapCanvas,mapOptions);
     } // end initialMap
 
     initialMap();
@@ -37,7 +41,7 @@ var ViewModel = function() {
         if (self.neighborhood() != '' ) {
             searchNeighborhood(self.neighborhood());
         }
-    });
+    }); // resetNeighborhood
 
     function callbackNeighborhood(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -48,6 +52,8 @@ var ViewModel = function() {
     function showNeighborhood(placeData) {
         var lat = placeData.geometry.location.lat();    // latitude from the place service
         var lng = placeData.geometry.location.lng();    // longitude from the place service
+        console.log(lat);
+        console.log(lng);
         var name = placeData.formatted_address;         // name of the place from the place service
         var bounds = new google.maps.LatLngBounds();    // create a LatLngBounds object
         var neighCenter = new google.maps.LatLng(lat,lng);
@@ -73,7 +79,6 @@ var ViewModel = function() {
         map.setCenter(neighCenter); 
 
         var fsUrl = config.authTokenPara1+lat+','+lng+config.authTokenPara2;
-        //self.initialList(fsUrl);
         $.getJSON(fsUrl, function(data) {
             var place = data.response.groups[0].items;
             /* Place marker for each place. */
@@ -82,6 +87,15 @@ var ViewModel = function() {
                 createPlaceMarker(place[i].venue);
                 self.initialList.push(place[i]);
             }
+
+            // change the map boundary according to suggestedBounds
+            /*var bounds = data.response.suggestedBounds;
+            if (bounds != undefined) {
+                mapBounds = new google.maps.LatLngBounds(
+                new google.maps.LatLng(bounds.sw.lat, bounds.sw.lng),
+                new google.maps.LatLng(bounds.ne.lat, bounds.ne.lng));
+                map.fitBounds(mapBounds);
+            }*/
         }); // end getJSON
 
     } // end showNeighborhood
@@ -112,8 +126,6 @@ var ViewModel = function() {
         
     } // end createPlaceMarker
 
-    //console.log(this.initialList().length);
-    //requestPlace(this.neighborhoodLat(),this.neighborhoodLng());
 }; // end ViewModel
 
-ko.applyBindings(new ViewModel())
+ko.applyBindings(new ViewModel());
