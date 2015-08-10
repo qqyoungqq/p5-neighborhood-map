@@ -1,67 +1,37 @@
 // To do: better binding 
 /* Model */
-var initialNeighborhood = 'Miami, FL';
+var neighborhood = {
+    lat: 25.7616798,
+    lng: -80.19179020000001,
+    name: 'Miami, FL'
+};
+
+// MapMarkerSet class contains information of map markers for searching.
+var PlaceMarkerSet = function(marker, name, category, position) {
+  this.marker = marker,
+  this.name = name,
+  this.category = category,
+  this.position = position
+};
+
+
 var config = {
     authTokenPara1: 'https://api.foursquare.com/v2/venues/explore?ll=',
     authTokenPara2: '&oauth_token=I3QD5N1FBA1JNPGRATZUNDGEFLHOAEJDEHFSAA13KHXNGCSX&v=20150724'
 };
 
-/* ViewModel */
-var ViewModel = function() {
-    var self=this;
-    var map;
-    var service;
-    var mapCanvas =  document.getElementById('map-canvas');
-
-
-    this.neighborhood = ko.observable(initialNeighborhood); // pre-defined neighborhood
-    this.initialList = ko.observableArray();              // pre-defined placed 
-    //self.filteredList = ko.computed();
-
-    function initialMap() {
-        var mapOptions = {
-            zoom: 14,
-            disableDefaultUI: true
-        };
-        //var mapCanvas = document.getElementById('map-canvas');
-        map = new google.maps.Map(mapCanvas,mapOptions);
-    } // end initialMap
-
-    initialMap();
-
-    function searchNeighborhood(neighborhood) {
-        var request = {
-            query: neighborhood
-        };
-        service = new google.maps.places.PlacesService(map);
-        service.textSearch(request, callbackNeighborhood);
-    } // end searchNeighborhood
-
-    this.resetNeighborhood = ko.computed(function() {
-        if (self.neighborhood() != '' ) {
-            searchNeighborhood(self.neighborhood());
-        }
-    }); // resetNeighborhood
-
-    function callbackNeighborhood(results, status) {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-            showNeighborhood(results[0]);
-        }
-    } // end callbackNeighborhood
-
-    function showNeighborhood(placeData) {
-        var lat = placeData.geometry.location.lat();    // latitude from the place service
-        var lng = placeData.geometry.location.lng();    // longitude from the place service
-        console.log(lat);
-        console.log(lng);
-        var name = placeData.formatted_address;         // name of the place from the place service
-        var bounds = new google.maps.LatLngBounds();    // create a LatLngBounds object
-        var neighCenter = new google.maps.LatLng(lat,lng);
-
-        var marker = new google.maps.Marker({
+// Define Google Map objects
+var GoogleMap = function(element,neighborhood) {
+    var center = new google.maps.LatLng(neighborhood.lat,neighborhood.lng);
+    var mapOptions = {
+            center: center,
+            zoom: 16
+    };    
+    var map = new google.maps.Map(element,mapOptions);
+    var marker = new google.maps.Marker({
             map: map,
-            position: placeData.geometry.location,
-            title: name,
+            position: center,
+            title: neighborhood.name,
             icon: {
             // Star
                 path: 'M 0,-24 6,-7 24,-7 10,4 15,21 0,11 -15,21 -10,4 -24,-7 -6,-7 z',
@@ -71,60 +41,71 @@ var ViewModel = function() {
                 strokeColor: '#bd8d2c',
                 strokeWeight: 1
             }
-        }); // end marker
+    }); // end marker
+    return map;
+}
 
-        // extend the bound to contain the given point
-        bounds.extend(placeData.geometry.location);
-        // center the map
-        map.setCenter(neighCenter); 
+/* ViewModel */
+var ViewModel = function() {
+    var self=this;
+    var mapCanvas =  document.getElementById('map-canvas');
+    var fsUrl = config.authTokenPara1+neighborhood.lat+','+neighborhood.lng+config.authTokenPara2;
+    var placeMarkers = [];
 
-        var fsUrl = config.authTokenPara1+lat+','+lng+config.authTokenPara2;
+    self.initialList = ko.observableArray();              // pre-defined placed 
+    self.filterList = ko.observableArray();
+    self.searchWord = ko.observable('');
+    self.map = GoogleMap(mapCanvas,neighborhood);         // use Google Map objects
+    self.displayMarker = ko.computed(function() {
         $.getJSON(fsUrl, function(data) {
             var place = data.response.groups[0].items;
-            /* Place marker for each place. */
             for (var i=0; i < place.length; i++) {
-                /* Get marker's location */
                 createPlaceMarker(place[i].venue);
                 self.initialList.push(place[i]);
+                self.filterList.push(place[i].venue);
             }
-
-            // change the map boundary according to suggestedBounds
-            /*var bounds = data.response.suggestedBounds;
-            if (bounds != undefined) {
-                mapBounds = new google.maps.LatLngBounds(
-                new google.maps.LatLng(bounds.sw.lat, bounds.sw.lng),
-                new google.maps.LatLng(bounds.ne.lat, bounds.ne.lng));
-                map.fitBounds(mapBounds);
-            }*/
         }); // end getJSON
+    }); // end displayMarker 
 
-    } // end showNeighborhood
+    self.clickMarker = function(clickedPlace) {
+        var placeName = clickedPlace.name.toLowerCase();
+        for (var i in placeMarkers) {
+        if (placeMarkers[i].name === placeName) {
+            google.maps.event.trigger(placeMarkers[i].marker, 'click');
+            map.panTo(placeMarkers[i].position);
+        }
+        }
+    }; // end clickMarker
 
 
+    //Define functions to display markers on the map (communicate with Google Map)
     function createPlaceMarker(data) {
         var lat = data.location.lat;
         var lng = data.location.lng;
+        var position = new google.maps.LatLng(lat, lng);
         var name = data.name;
         var address = data.location.address;
+        var category = data.categories[0].name;
         var bounds = new google.maps.LatLngBounds(); 
-
         var marker = new google.maps.Marker({
-            map: map,
-            position: new google.maps.LatLng(lat, lng),
+            map: self.map,
+            position: position,
             title: name
         }); // end marker
+
+        placeMarkers.push(new PlaceMarkerSet(marker, name.toLowerCase(), category.toLowerCase(), position));
 
         var infoWindow = new google.maps.InfoWindow({
             content: address
         }); // end infoWindow
 
         google.maps.event.addListener(marker,'click', function() {
-            infoWindow.open(map,marker);
+            infoWindow.open(self.map,marker);
         });
 
-        bounds.extend(new google.maps.LatLng(lat, lng));
+        bounds.extend(position);
         
-    } // end createPlaceMarker
+    } // end createPlaceMarker()
 
 }; // end ViewModel
 

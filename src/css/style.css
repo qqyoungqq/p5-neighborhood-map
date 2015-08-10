@@ -9,8 +9,6 @@
 	font-weight: bold;
 }
 
-html, body, #map-canvas {
-	height: 100%; 
-	margin: 0; 
-	padding: 0;
+#map-canvas {
+	height: 600px; 
 }

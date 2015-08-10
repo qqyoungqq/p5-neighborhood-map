@@ -20,6 +20,7 @@ var config = {
     authTokenPara2: '&oauth_token=I3QD5N1FBA1JNPGRATZUNDGEFLHOAEJDEHFSAA13KHXNGCSX&v=20150724'
 };
 
+// Define Google Map objects
 var GoogleMap = function(element,neighborhood) {
     var center = new google.maps.LatLng(neighborhood.lat,neighborhood.lng);
     var mapOptions = {
@@ -47,7 +48,6 @@ var GoogleMap = function(element,neighborhood) {
 /* ViewModel */
 var ViewModel = function() {
     var self=this;
-    var map;
     var mapCanvas =  document.getElementById('map-canvas');
     var fsUrl = config.authTokenPara1+neighborhood.lat+','+neighborhood.lng+config.authTokenPara2;
     var placeMarkers = [];
@@ -55,42 +55,7 @@ var ViewModel = function() {
     self.initialList = ko.observableArray();              // pre-defined placed 
     self.filterList = ko.observableArray();
     self.searchWord = ko.observable('');
-
-    function initialMap() {
-        map = GoogleMap(mapCanvas,neighborhood);
-        } // end initialMap
-
-    function createPlaceMarker(data) {
-        var lat = data.location.lat;
-        var lng = data.location.lng;
-        var position = new google.maps.LatLng(lat, lng);
-        var name = data.name;
-        var address = data.location.address;
-        var category = data.categories[0].name;
-        var bounds = new google.maps.LatLngBounds(); 
-
-        var marker = new google.maps.Marker({
-            map: map,
-            position: position,
-            title: name
-        }); // end marker
-
-        placeMarkers.push(new PlaceMarkerSet(marker, name.toLowerCase(), category.toLowerCase(), position));
-
-        var infoWindow = new google.maps.InfoWindow({
-            content: address
-        }); // end infoWindow
-
-        google.maps.event.addListener(marker,'click', function() {
-            infoWindow.open(map,marker);
-        });
-
-        bounds.extend(position);
-        
-    } // end createPlaceMarker
-
-    initialMap();
-
+    self.map = GoogleMap(mapCanvas,neighborhood);         // use Google Map objects
     self.displayMarker = ko.computed(function() {
         $.getJSON(fsUrl, function(data) {
             var place = data.response.groups[0].items;
@@ -103,14 +68,44 @@ var ViewModel = function() {
     }); // end displayMarker 
 
     self.clickMarker = function(clickedPlace) {
-    var placeName = clickedPlace.name.toLowerCase();
-    for (var i in placeMarkers) {
-      if (placeMarkers[i].name === placeName) {
-        google.maps.event.trigger(placeMarkers[i].marker, 'click');
-        map.panTo(placeMarkers[i].position);
-      }
-    }
-  }; // end clickMarker
+        var placeName = clickedPlace.name.toLowerCase();
+        for (var i in placeMarkers) {
+        if (placeMarkers[i].name === placeName) {
+            google.maps.event.trigger(placeMarkers[i].marker, 'click');
+            map.panTo(placeMarkers[i].position);
+        }
+        }
+    }; // end clickMarker
+
+
+    //Define functions to display markers on the map (communicate with Google Map)
+    function createPlaceMarker(data) {
+        var lat = data.location.lat;
+        var lng = data.location.lng;
+        var position = new google.maps.LatLng(lat, lng);
+        var name = data.name;
+        var address = data.location.address;
+        var category = data.categories[0].name;
+        var bounds = new google.maps.LatLngBounds(); 
+        var marker = new google.maps.Marker({
+            map: self.map,
+            position: position,
+            title: name
+        }); // end marker
+
+        placeMarkers.push(new PlaceMarkerSet(marker, name.toLowerCase(), category.toLowerCase(), position));
+
+        var infoWindow = new google.maps.InfoWindow({
+            content: address
+        }); // end infoWindow
+
+        google.maps.event.addListener(marker,'click', function() {
+            infoWindow.open(self.map,marker);
+        });
+
+        bounds.extend(position);
+        
+    } // end createPlaceMarker()
 
 }; // end ViewModel
 

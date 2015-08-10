@@ -5,32 +5,29 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>neighborhood-map</title>
-
+  <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
 </head>
 
 <body>
-<!--<h2>Number of initial places(<span data-bind="text: initialList().length"></span>)</h2>-->
+<div class="row">
+  <div class="col-md-12">
+    <label for="Search">Search</label>
+    <input data-bind="value: searchWord">
+  </div>
 </div>
-<div>
-  <label for="Search">Search</label>
-  <input data-bind="value: searchWord">
-</div>
+<div class="row">
+<div class="col-md-3">
   <h2>List of places</h2>
   <div>
     <ul data-bind="foreach: filterList">
       <li data-bind="text:name, click: $root.clickMarker"></li>
     </ul>
   </div>
-<!--<div>
-   <label for="Neighborhood">Neighborhood</label>
-   <input data-bind="value: neighborhood">
 </div>
-<div>
-  <h2 data-bind="text: neighborhood"></h2>
-</div>-->
-<div id="map-canvas"></div>
+<div class="col-md-9" id="map-canvas"></div>
+</div>
 <script src="js/jQuery.js"></script>
 <script src="js/lib/knockout-3.2.0.js"></script>
 <script src="js/app-text.js"></script>
