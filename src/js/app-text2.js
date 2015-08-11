@@ -1,8 +1,8 @@
 // To do: better binding 
 /* Model */
 var neighborhood = {
-    lat: 25.7616798,
-    lng: -80.19179020000001,
+    lat: 27.7731,
+    lng: -82.6400,
     name: 'Miami, FL'
 }
 
@@ -49,8 +49,8 @@ var ViewModel = function() {
 
           var request = {
             location: new google.maps.LatLng(neighborhood.lat,neighborhood.lng),
-            radius: '500',
-            types: ['restaurant']
+            radius: '50000',
+            types: ['food']
         };
 
         service = new google.maps.places.PlacesService(map);

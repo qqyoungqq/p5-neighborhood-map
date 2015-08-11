@@ -1,16 +1,21 @@
 // To do: better binding 
 /* Model */
 var neighborhood = {
-    lat: 25.7616798,
-    lng: -80.19179020000001,
-    name: 'Miami, FL'
+    lat: 27.7761,
+    lng: -82.6386,
+    name: 'St. Petersburg, FL'
+};
+
+var request = {
+    location: new google.maps.LatLng(neighborhood.lat,neighborhood.lng),
+    radius: 500,
+    types: ['food']
 };
 
 // MapMarkerSet class contains information of map markers for searching.
-var PlaceMarkerSet = function(marker, name, category, position) {
+var PlaceMarkerSet = function(marker, name, position) {
   this.marker = marker,
   this.name = name,
-  this.category = category,
   this.position = position
 };
 
@@ -45,6 +50,7 @@ var GoogleMap = function(element,neighborhood) {
     return map;
 }
 
+
 /* ViewModel */
 var ViewModel = function() {
     var self=this;
@@ -56,16 +62,9 @@ var ViewModel = function() {
     self.filterList = ko.observableArray();
     self.searchWord = ko.observable('');
     self.map = GoogleMap(mapCanvas,neighborhood);         // use Google Map objects
-    self.displayMarker = ko.computed(function() {
-        $.getJSON(fsUrl, function(data) {
-            var place = data.response.groups[0].items;
-            for (var i=0; i < place.length; i++) {
-                createPlaceMarker(place[i].venue);
-                self.initialList.push(place[i]);
-                self.filterList.push(place[i].venue);
-            }
-        }); // end getJSON
-    }); // end displayMarker 
+
+    var service = new google.maps.places.PlacesService(self.map);
+    service.nearbySearch(request, callback);
 
     self.clickMarker = function(clickedPlace) {
         var placeName = clickedPlace.name.toLowerCase();
@@ -77,33 +76,36 @@ var ViewModel = function() {
         }
     }; // end clickMarker
 
+    function callback(results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            for (var i = 0; i < results.length; i++) {
+                createMarker(results[i]);
+                self.initialList.push(results[i]);
+                self.filterList.push(results[i]);
+            }
+        }
+    }
 
     //Define functions to display markers on the map (communicate with Google Map)
-    function createPlaceMarker(data) {
-        var lat = data.location.lat;
-        var lng = data.location.lng;
-        var position = new google.maps.LatLng(lat, lng);
+    function createMarker(data) {
+        var placeLoc = data.geometry.location;
         var name = data.name;
-        var address = data.location.address;
-        var category = data.categories[0].name;
         var bounds = new google.maps.LatLngBounds(); 
         var marker = new google.maps.Marker({
             map: self.map,
-            position: position,
-            title: name
+            position: placeLoc
         }); // end marker
 
-        placeMarkers.push(new PlaceMarkerSet(marker, name.toLowerCase(), category.toLowerCase(), position));
+        placeMarkers.push(new PlaceMarkerSet(marker, name.toLowerCase(), placeLoc));
 
-        var infoWindow = new google.maps.InfoWindow({
-            content: address
-        }); // end infoWindow
+        var infoWindow = new google.maps.InfoWindow();
 
         google.maps.event.addListener(marker,'click', function() {
-            infoWindow.open(self.map,marker);
+            infoWindow.setContent(data.name);
+            infoWindow.open(self.map,this);
         });
 
-        bounds.extend(position);
+        bounds.extend(placeLoc);
         
     } // end createPlaceMarker()
 
