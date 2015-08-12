@@ -59,7 +59,7 @@ var ViewModel = function() {
 
     self.initialList = ko.observableArray();              // pre-defined placed 
     self.filterList = ko.observableArray();
-    self.searchWord = ko.observable('');
+    self.query= ko.observable('');
     self.placeMarkers = ko.observableArray();
     self.map = GoogleMap(mapCanvas,neighborhood);         // use Google Map objects
 
@@ -85,6 +85,12 @@ var ViewModel = function() {
             }
         }
     }
+
+    self.search = ko.computed(function(){
+        return ko.utils.arrayFilter(self.placeMarkers(), function(point){
+            return point.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;
+        });
+    });
 
     //Define functions to display markers on the map (communicate with Google Map)
     function createMarker(data) {
