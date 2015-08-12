@@ -56,11 +56,11 @@ var ViewModel = function() {
     var self=this;
     var mapCanvas =  document.getElementById('map-canvas');
     var fsUrl = config.authTokenPara1+neighborhood.lat+','+neighborhood.lng+config.authTokenPara2;
-    var placeMarkers = [];
 
     self.initialList = ko.observableArray();              // pre-defined placed 
     self.filterList = ko.observableArray();
     self.searchWord = ko.observable('');
+    self.placeMarkers = ko.observableArray();
     self.map = GoogleMap(mapCanvas,neighborhood);         // use Google Map objects
 
     var service = new google.maps.places.PlacesService(self.map);
@@ -68,10 +68,10 @@ var ViewModel = function() {
 
     self.clickMarker = function(clickedPlace) {
         var placeName = clickedPlace.name.toLowerCase();
-        for (var i in placeMarkers) {
-        if (placeMarkers[i].name === placeName) {
-            google.maps.event.trigger(placeMarkers[i].marker, 'click');
-            map.panTo(placeMarkers[i].position);
+        for (var i in self.placeMarkers()) {
+        if (self.placeMarkers()[i].name === placeName) {
+            google.maps.event.trigger(self.placeMarkers()[i].marker, 'click');
+            self.map.panTo(self.placeMarkers()[i].position);
         }
         }
     }; // end clickMarker
@@ -96,18 +96,18 @@ var ViewModel = function() {
             position: placeLoc
         }); // end marker
 
-        placeMarkers.push(new PlaceMarkerSet(marker, name.toLowerCase(), placeLoc));
+        self.placeMarkers.push(new PlaceMarkerSet(marker, name.toLowerCase(), placeLoc));
 
         var infoWindow = new google.maps.InfoWindow();
 
         google.maps.event.addListener(marker,'click', function() {
-            infoWindow.setContent(data.name);
+            infoWindow.setContent(name);
             infoWindow.open(self.map,this);
         });
 
         bounds.extend(placeLoc);
         
-    } // end createPlaceMarker()
+    } // end createMarker()
 
 }; // end ViewModel
 
