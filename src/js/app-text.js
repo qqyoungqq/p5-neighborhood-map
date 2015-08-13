@@ -22,7 +22,7 @@ var point = function(map,name,position) {
         title: name
     }); // end marker
 
-    var infoWindow = new google.maps.InfoWindow();
+   var infoWindow = new google.maps.InfoWindow();
 
     google.maps.event.addListener(this.marker,'click', function() {
         infoWindow.setContent(name);
@@ -75,15 +75,15 @@ var ViewModel = function() {
     var service = new google.maps.places.PlacesService(self.map);
     service.nearbySearch(request, callback);
 
-    /*self.clickMarker = function(clickedPlace) {
+    self.clickMarker = function(clickedPlace) {
         var placeName = clickedPlace.name.toLowerCase();
-        for (var i in self.placeMarkers()) {
-        if (self.placeMarkers()[i].name === placeName) {
-            google.maps.event.trigger(self.placeMarkers()[i].marker, 'click');
-            self.map.panTo(self.placeMarkers()[i].position);
-        }
-        }
-    }; // end clickMarker*/
+        for (var i = 0; i<self.points().length; i++) {
+            if (self.points()[i].name.toLowerCase() === placeName.toLowerCase()) {
+                google.maps.event.trigger(self.points()[i].marker, 'click');
+                self.map.panTo(self.points()[i].position);
+            }
+        } 
+    }; // end clickMarker
 
     function callback(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
