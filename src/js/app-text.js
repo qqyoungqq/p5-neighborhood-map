@@ -21,6 +21,14 @@ var point = function(map,name,position) {
         position: position,
         title: name
     }); // end marker
+
+    var infoWindow = new google.maps.InfoWindow();
+
+    google.maps.event.addListener(this.marker,'click', function() {
+        infoWindow.setContent(name);
+        infoWindow.open(map,this);
+    });
+
 }
 
 var config = {
