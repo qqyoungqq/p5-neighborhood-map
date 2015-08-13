@@ -12,13 +12,6 @@ var request = {
     types: ['food']
 };
 
-// MapMarkerSet class contains information of map markers for searching.
-/*var PlaceMarkerSet = function(marker, name, position) {
-  this.marker = marker,
-  this.name = name,
-  this.position = position
-}; */
-
 var point = function(map,name,position) {
     this.map = map;
     this.name = name;
@@ -29,7 +22,6 @@ var point = function(map,name,position) {
         title: name
     }); // end marker
 }
-
 
 var config = {
     authTokenPara1: 'https://api.foursquare.com/v2/venues/explore?ll=',
@@ -68,17 +60,14 @@ var ViewModel = function() {
     var mapCanvas =  document.getElementById('map-canvas');
     var fsUrl = config.authTokenPara1+neighborhood.lat+','+neighborhood.lng+config.authTokenPara2;
 
-    self.initialList = ko.observableArray();              // pre-defined placed 
-    self.filterList = ko.observableArray();
     self.query= ko.observable('');
-    self.placeMarkers = ko.observableArray();
     self.points = ko.observableArray();
     self.map = GoogleMap(mapCanvas,neighborhood);         // use Google Map objects
 
     var service = new google.maps.places.PlacesService(self.map);
     service.nearbySearch(request, callback);
 
-    self.clickMarker = function(clickedPlace) {
+    /*self.clickMarker = function(clickedPlace) {
         var placeName = clickedPlace.name.toLowerCase();
         for (var i in self.placeMarkers()) {
         if (self.placeMarkers()[i].name === placeName) {
@@ -86,7 +75,7 @@ var ViewModel = function() {
             self.map.panTo(self.placeMarkers()[i].position);
         }
         }
-    }; // end clickMarker
+    }; // end clickMarker*/
 
     function callback(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -96,6 +85,7 @@ var ViewModel = function() {
         }
     }
 
+    // Update the place list while searching
     self.search = ko.computed(function(){
         return ko.utils.arrayFilter(self.points(), function(point){
             return point.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;
