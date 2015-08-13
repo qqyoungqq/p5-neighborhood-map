@@ -13,11 +13,22 @@ var request = {
 };
 
 // MapMarkerSet class contains information of map markers for searching.
-var PlaceMarkerSet = function(marker, name, position) {
+/*var PlaceMarkerSet = function(marker, name, position) {
   this.marker = marker,
   this.name = name,
   this.position = position
-};
+}; */
+
+var point = function(map,name,position) {
+    this.map = map;
+    this.name = name;
+    this.position = position;
+    this.marker = new google.maps.Marker({
+        map: map,
+        position: position,
+        title: name
+    }); // end marker
+}
 
 
 var config = {
@@ -61,6 +72,7 @@ var ViewModel = function() {
     self.filterList = ko.observableArray();
     self.query= ko.observable('');
     self.placeMarkers = ko.observableArray();
+    self.points = ko.observableArray();
     self.map = GoogleMap(mapCanvas,neighborhood);         // use Google Map objects
 
     var service = new google.maps.places.PlacesService(self.map);
@@ -79,21 +91,35 @@ var ViewModel = function() {
     function callback(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
             for (var i = 0; i < results.length; i++) {
-                createMarker(results[i]);
-                self.initialList.push(results[i]);
-                self.filterList.push(results[i]);
+                self.points.push(new point(self.map,results[i].name,results[i].geometry.location));
             }
         }
     }
 
     self.search = ko.computed(function(){
-        return ko.utils.arrayFilter(self.placeMarkers(), function(point){
+        return ko.utils.arrayFilter(self.points(), function(point){
             return point.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;
         });
     });
 
+    // Update markers while searching
+    self.updateMarkers = ko.computed(function(){
+        if (self.query()) {
+            for (var i=0; i < self.points().length; i++) {
+                if (self.points()[i].name.toLowerCase().indexOf(self.query().toLowerCase()) < 0) {
+                    self.points()[i].marker.setVisible(false);
+                }
+            }
+        } else {
+            for (var i=0; i < self.points().length; i++) {
+                self.points()[i].marker.setVisible(true);
+            }
+        }
+    });
+
+
     //Define functions to display markers on the map (communicate with Google Map)
-    function createMarker(data) {
+    /*function createMarker(data) {
         var placeLoc = data.geometry.location;
         var name = data.name;
         var bounds = new google.maps.LatLngBounds(); 
@@ -113,7 +139,7 @@ var ViewModel = function() {
 
         bounds.extend(placeLoc);
         
-    } // end createMarker()
+    } // end createMarker() */
 
 }; // end ViewModel
 
