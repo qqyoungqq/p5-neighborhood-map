@@ -111,30 +111,6 @@ var ViewModel = function() {
             }
     });
 
-
-    //Define functions to display markers on the map (communicate with Google Map)
-    /*function createMarker(data) {
-        var placeLoc = data.geometry.location;
-        var name = data.name;
-        var bounds = new google.maps.LatLngBounds(); 
-        var marker = new google.maps.Marker({
-            map: self.map,
-            position: placeLoc
-        }); // end marker
-
-        self.placeMarkers.push(new PlaceMarkerSet(marker, name.toLowerCase(), placeLoc));
-
-        var infoWindow = new google.maps.InfoWindow();
-
-        google.maps.event.addListener(marker,'click', function() {
-            infoWindow.setContent(name);
-            infoWindow.open(self.map,this);
-        });
-
-        bounds.extend(placeLoc);
-        
-    } // end createMarker() */
-
 }; // end ViewModel
 
 ko.applyBindings(new ViewModel());
