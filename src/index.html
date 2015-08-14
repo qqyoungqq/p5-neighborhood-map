@@ -8,6 +8,12 @@
   <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
+  <script type="text/javascript" src="js/heyoffline.js"></script>
+  <script type="text/javascript">
+    window.addEventListener('load', function(){
+      new Heyoffline();
+    }, false);
+  </script>
 </head>
 
 <body>
@@ -30,6 +36,29 @@
 </div>
 <script src="js/jQuery.js"></script>
 <script src="js/lib/knockout-3.2.0.js"></script>
-<script src="js/app-text.js"></script>
+<script async src="js/app-text.js"></script>
+<!--<script async>
+  function initialize () {
+    app();
+    var elem = document.getElementById('main');
+    elem.style.display = ('block');
+  }
+  function loadScript() {
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp' + '&signed_in=true&callback=initialize';
+    document.body.appendChild(script);
+    script.onerror = function(event){
+      console.log('Google Maps Error');
+      alert('Google Maps Could Not Be Reached.');
+      }
+
+      script.onload = function(event){
+          console.log('Google Maps Success');
+      }
+
+    window.onload = loadScript;
+  }
+</script>-->
 </body>
 </html>
