@@ -94,7 +94,7 @@ var ViewModel = function() {
     }
 
     // Update the place list while searching
-    self.search = ko.computed(function(){
+    self.search = ko.computed(function(){  
         return ko.utils.arrayFilter(self.points(), function(point){
             return point.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;
         });
@@ -102,17 +102,13 @@ var ViewModel = function() {
 
     // Update markers while searching
     self.updateMarkers = ko.computed(function(){
-        if (self.query()) {
             for (var i=0; i < self.points().length; i++) {
-                if (self.points()[i].name.toLowerCase().indexOf(self.query().toLowerCase()) < 0) {
+                if (self.points()[i].name.toLowerCase().indexOf(self.query().toLowerCase()) <0 ) {
                     self.points()[i].marker.setVisible(false);
+                } else {
+                    self.points()[i].marker.setVisible(true);
                 }
             }
-        } else {
-            for (var i=0; i < self.points().length; i++) {
-                self.points()[i].marker.setVisible(true);
-            }
-        }
     });
 
 
