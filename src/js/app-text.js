@@ -6,12 +6,6 @@ var neighborhood = {
     name: 'St. Petersburg, FL'
 };
 
-var request = {
-    location: new google.maps.LatLng(neighborhood.lat,neighborhood.lng),
-    radius: 500,
-    types: ['food']
-};
-
 var point = function(map,name,position) {
     this.map = map;
     this.name = name;
@@ -41,7 +35,7 @@ var GoogleMap = function(element,neighborhood) {
     var center = new google.maps.LatLng(neighborhood.lat,neighborhood.lng);
     var mapOptions = {
             center: center,
-            zoom: 16
+            zoom: 15
     };    
     var map = new google.maps.Map(element,mapOptions);
     var marker = new google.maps.Marker({
@@ -72,8 +66,6 @@ var ViewModel = function() {
     self.points = ko.observableArray();
     self.map = GoogleMap(mapCanvas,neighborhood);         // use Google Map objects
 
-    var service = new google.maps.places.PlacesService(self.map);
-    service.nearbySearch(request, callback);
 
     self.clickMarker = function(clickedPlace) {
         var placeName = clickedPlace.name.toLowerCase();
@@ -85,13 +77,17 @@ var ViewModel = function() {
         } 
     }; // end clickMarker
 
-    function callback(results, status) {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-            for (var i = 0; i < results.length; i++) {
-                self.points.push(new point(self.map,results[i].name,results[i].geometry.location));
+    self.getFoursquarePlace = ko.computed(function() {
+        $.getJSON(fsUrl, function(data) {
+            var place = data.response.groups[0].items;
+            for (var i=0; i < place.length; i++) {
+                self.points.push(new point(self.map, place[i].venue.name, place[i].venue.location));
             }
-        }
-    }
+        }).error(function(e){
+            console.log('Oops! Fail to get venues from FourSquare');
+        }); // end getJSON
+    }); // end getFoursquarePlaces 
+
 
     // Update the place list while searching
     self.search = ko.computed(function(){  
