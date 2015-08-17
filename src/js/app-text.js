@@ -6,23 +6,37 @@ var neighborhood = {
     name: 'St. Petersburg, FL'
 };
 
-var point = function(map,name,position) {
+var point = function(map,venue) {
     this.map = map;
-    this.name = name;
-    this.position = position;
+    this.name = venue.name;
+    this.position = venue.location;
+    this.contact = venue.contact.formattedPhone;
+    this.url = venue.url;
+    this.address = venue.location.address;
     this.marker = new google.maps.Marker({
         map: map,
-        position: position,
-        title: name
+        position: venue.location,
+        title: venue.name,
+        //animation: google.maps.Animation.DROP
     }); // end marker
 
-   var infoWindow = new google.maps.InfoWindow();
-
-    google.maps.event.addListener(this.marker,'click', function() {
-        infoWindow.setContent(name);
+    var contentString = this.name + '<br>' + this.address +'<br>' + this.contact + '<br>' + '<a href = ' + this.url +'>Click for more info</a>'
+    var infoWindow = new google.maps.InfoWindow();
+    
+    this.openInfoWindow = function() {
+        infoWindow.setContent(contentString);
         infoWindow.open(map,this);
-    });
+        this.setAnimation(google.maps.Animation.BOUNCE);
+        stopAnimation(this);
+    }
 
+    function stopAnimation(marker) {
+        setTimeout(function(){
+            marker.setAnimation(null);
+        }, 1400);
+    }
+
+    google.maps.event.addListener(this.marker,'click', this.openInfoWindow);
 }
 
 var config = {
@@ -81,7 +95,8 @@ var ViewModel = function() {
         $.getJSON(fsUrl, function(data) {
             var place = data.response.groups[0].items;
             for (var i=0; i < place.length; i++) {
-                self.points.push(new point(self.map, place[i].venue.name, place[i].venue.location));
+                //self.points.push(new point(self.map, place[i].venue.name, place[i].venue.location));
+                self.points.push(new point(self.map, place[i].venue));
             }
         }).error(function(e){
             console.log('Oops! Fail to get venues from FourSquare');
