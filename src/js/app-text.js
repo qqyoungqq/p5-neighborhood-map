@@ -6,6 +6,9 @@ var neighborhood = {
     name: 'St. Petersburg, FL'
 };
 
+// create ONE infoWindow in the global scope so that previous infowindow is closed when another one is clicked
+var infoWindow = new google.maps.InfoWindow();
+
 var point = function(map,venue) {
     this.map = map;
     this.name = venue.name;
@@ -17,11 +20,10 @@ var point = function(map,venue) {
         map: map,
         position: venue.location,
         title: venue.name,
-        //animation: google.maps.Animation.DROP
+        animation: google.maps.Animation.DROP
     }); // end marker
 
     var contentString = this.name + '<br>' + this.address +'<br>' + this.contact + '<br>' + '<a href = ' + this.url +'>Click for more info</a>'
-    var infoWindow = new google.maps.InfoWindow();
     
     this.openInfoWindow = function() {
         infoWindow.setContent(contentString);
@@ -30,6 +32,7 @@ var point = function(map,venue) {
         stopAnimation(this);
     }
 
+    // Stop animation after two bounces
     function stopAnimation(marker) {
         setTimeout(function(){
             marker.setAnimation(null);
@@ -66,6 +69,12 @@ var GoogleMap = function(element,neighborhood) {
                 strokeWeight: 1
             }
     }); // end marker
+
+    google.maps.event.addListener(marker,'click', function() {
+        infoWindow.setContent(marker.title);
+        infoWindow.open(map,marker);
+    });
+
     return map;
 }
 
@@ -95,7 +104,6 @@ var ViewModel = function() {
         $.getJSON(fsUrl, function(data) {
             var place = data.response.groups[0].items;
             for (var i=0; i < place.length; i++) {
-                //self.points.push(new point(self.map, place[i].venue.name, place[i].venue.location));
                 self.points.push(new point(self.map, place[i].venue));
             }
         }).error(function(e){
