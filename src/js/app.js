@@ -54,6 +54,7 @@ var GoogleMap = function(element,neighborhood) {
             panControl: false,
             zoomControl: false,
             streetViewControl: false,
+            mapTypeControl: false,
             center: center,
             zoom: 15
     };    

@@ -16,18 +16,22 @@
 </head>
 
 <body>
-<div id="searchBox">
-    <label for="Search">Search</label>
-    <input data-bind="textInput: query">
+<div id="map-canvas">
 </div>
-<div id="map-canvas"></div>
+<div class="search">  
+  <h1>St. Petersburg, FL</h1>
+  <div id="searchBar">
+    <input id="searchInput" data-bind="textInput: query" placeholder="Search for popular places..." autofocus>
+  </div>
+</div>
 <div id="infoBox">
-  <h2>List of places</h2>
+  <h1>Popular places</h1>
   <div>
     <ul data-bind="foreach: search()">
       <li data-bind="text:name, click: $root.clickMarker"></li>
     </ul>
   </div>
+
 </div>
 <script src="js/jQuery.js"></script>
 <script src="js/lib/knockout-3.2.0.js"></script>
