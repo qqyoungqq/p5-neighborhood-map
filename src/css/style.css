@@ -9,6 +9,39 @@
 	font-weight: bold;
 }
 
-#map-canvas {
-	height: 600px; 
+html, body, #map-canvas {
+	margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+#infoBox {
+  max-width: 300px;
+  padding-left: 2px;
+  padding-right: 2px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  border-radius: 3px;
+  z-index: 102;
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background-color: #FFFFFF;
+}
+
+#searchBox {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  max-width: 500px;
+  width: 90%;
+  height: 32px;
+  display: flex;
+  z-index: 101;
+  position: fixed;
+  margin-left: 20px;
+  top: 20px;
+}
+
+/*#map-canvas {
+	height: 100px; 
+	width: 100px;
 }
