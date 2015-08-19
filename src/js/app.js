@@ -13,9 +13,11 @@ var point = function(map,venue) {
     this.map = map;
     this.name = venue.name;
     this.position = venue.location;
-    this.contact = venue.contact.formattedPhone;
     this.url = venue.url;
     this.address = venue.location.address;
+    this.contact = venue.contact.formattedPhone;
+    this.rating = venue.rating+'/10';
+    this.category = venue.categories[0].name;
     this.marker = new google.maps.Marker({
         map: map,
         position: venue.location,

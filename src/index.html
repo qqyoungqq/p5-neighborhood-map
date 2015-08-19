@@ -28,7 +28,12 @@
   <h1>Popular places</h1>
   <div>
     <ul data-bind="foreach: search()">
-      <li data-bind="text:name, click: $root.clickMarker"></li>
+      <!--<li id="placeName" data-bind="text:name, click: $root.clickMarker"></li>-->
+      <li data-bind="click: $root.clickMarker">
+        <p id="placeName" data-bind="text:name"></p>
+        <p id="category">Category: <span data-bind="text:category"></span></p> <!-- Add Catogory-->
+        <p id="rate">Rating: <span data-bind="text:rating"></span></p> <!-- Add Rating-->
+      </li>
     </ul>
   </div>
 
