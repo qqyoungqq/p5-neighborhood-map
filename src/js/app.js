@@ -1,14 +1,15 @@
-// To do: better binding 
 /* Model */
+// define neighborhood object 
 var neighborhood = {
     lat: 27.7761,
     lng: -82.6386,
     name: 'St. Petersburg, FL'
 };
 
-// create ONE infoWindow in the global scope so that previous infowindow is closed when another one is clicked
+// create ONE infoWindow in the global scope 
 var infoWindow = new google.maps.InfoWindow();
 
+// define point object scoring information on each place 
 var point = function(map,venue) {
     this.map = map;
     this.name = venue.name;
@@ -25,7 +26,7 @@ var point = function(map,venue) {
         animation: google.maps.Animation.DROP
     }); // end marker
 
-    var contentString = '<div id="infoName">'+ this.name + '</div><div class="info">Address: ' + this.address +'</div><div class="info">Contact: ' + this.contact + '</div>' + '<a href = ' + this.url +'>Click for more info</a>'
+    var contentString = '<div id="infoName">'+ this.name + '</div><div id="infoAdd">Address: ' + this.address +'</div><div id="infoCon">Contact: ' + this.contact + '</div>' + '<a id="infoUrl" href = ' + this.url +'>Click for more info</a>'
     
     this.openInfoWindow = function() {
         infoWindow.setContent(contentString);
@@ -44,12 +45,13 @@ var point = function(map,venue) {
     google.maps.event.addListener(this.marker,'click', this.openInfoWindow);
 }
 
+// define FourSquare configure object 
 var config = {
     authTokenPara1: 'https://api.foursquare.com/v2/venues/explore?ll=',
     authTokenPara2: '&oauth_token=I3QD5N1FBA1JNPGRATZUNDGEFLHOAEJDEHFSAA13KHXNGCSX&v=20150724'
 };
 
-// Define Google Map objects
+// define Google Map objects
 var GoogleMap = function(element,neighborhood) {
     var center = new google.maps.LatLng(neighborhood.lat,neighborhood.lng);
     var mapOptions = {
@@ -91,12 +93,13 @@ var ViewModel = function() {
     var mapCanvas =  document.getElementById('map-canvas');
     var fsUrl = config.authTokenPara1+neighborhood.lat+','+neighborhood.lng+config.authTokenPara2;
 
-    self.query= ko.observable('');
-    self.points = ko.observableArray();
+    self.query= ko.observable('');                        // query observable
+    self.points = ko.observableArray();                   // points observableArray
     self.map = GoogleMap(mapCanvas,neighborhood);         // use Google Map objects
 
 
-    self.clickMarker = function(clickedPlace) {
+    // trigger animation when a marker is clicked and the map pan to that clicked marker
+    self.clickMarker = function(clickedPlace) {           
         var placeName = clickedPlace.name.toLowerCase();
         for (var i = 0; i<self.points().length; i++) {
             if (self.points()[i].name.toLowerCase() === placeName.toLowerCase()) {
@@ -106,6 +109,7 @@ var ViewModel = function() {
         } 
     }; // end clickMarker
 
+    // AJAX request 
     self.getFoursquarePlace = ko.computed(function() {
         $.getJSON(fsUrl, function(data) {
             var place = data.response.groups[0].items;
@@ -118,14 +122,14 @@ var ViewModel = function() {
     }); // end getFoursquarePlaces 
 
 
-    // Update the place list while searching
+    // update the place list while searching
     self.search = ko.computed(function(){  
         return ko.utils.arrayFilter(self.points(), function(point){
             return point.name.toLowerCase().indexOf(self.query().toLowerCase()) >= 0;
         });
     });
 
-    // Update markers while searching
+    // update markers while searching
     self.updateMarkers = ko.computed(function(){
             for (var i=0; i < self.points().length; i++) {
                 if (self.points()[i].name.toLowerCase().indexOf(self.query().toLowerCase()) <0 ) {

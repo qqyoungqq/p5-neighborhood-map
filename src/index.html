@@ -31,7 +31,7 @@
     <ul data-bind="foreach: search()">
       <li>
         <p id="placeName" data-bind="text:name,click: $root.clickMarker"></p>
-        <div class="info">Category: <span data-bind="text:category"></span></div> <!-- Add Catogory-->
+        <div id="category">Category: <span data-bind="text:category"></span></div> <!-- Add Catogory-->
         <div id="rate">Rating: <span data-bind="text:rating"></span></div> <!-- Add Rating-->
       </li>
     </ul>
