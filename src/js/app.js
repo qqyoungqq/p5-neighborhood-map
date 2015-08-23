@@ -31,8 +31,10 @@ var point = function(map,venue) {
     this.openInfoWindow = function() {
         infoWindow.setContent(contentString);
         infoWindow.open(map,this);
+        map.panTo(this.position);
         this.setAnimation(google.maps.Animation.BOUNCE);
         stopAnimation(this);
+
     }
 
     // Stop animation after two bounces
